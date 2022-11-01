@@ -41,6 +41,7 @@ In order to run this project, you'll need the following things installed:
 * `results/`: Notebooks for plotting and visualization of results
 * `tests/`: Misc tests
 * `trained_models/`: Pretrained models are saved here
+* `pybind_interface/`: Python bindings for the experiment and logging code
 
 ## Running the code
 Firstly, make sure that your database is up and running. Place the `.my.cnf` file in the project's root directory. All the results are logged in the mariadb database. For an example on how to fetch and plot these, see the `results/` folder.
