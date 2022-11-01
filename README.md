@@ -1,5 +1,5 @@
 # Continually Adapting Networks
-![Build](https://github.com/haseebs/online-network-pruning/actions/workflows/cmake.yml/badge.svg?event=push) ![cpplint](https://github.com/haseebs/online-network-pruning/actions/workflows/cpplint.yml/badge.svg?event=push)
+![Build](https://github.com/haseebs/online-network-pruning/actions/workflows/cmake.yml/badge.svg?event=push) ![cpplint](https://github.com/haseebs/online-network-pruning/actions/workflows/cpplint.yml/badge.svg?event=push) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 The vision for this project is to build algorithms for the automatic
 adaptation of neural networks based solely on the observed stream of
