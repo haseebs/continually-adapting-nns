@@ -43,8 +43,19 @@ In order to run this project, you'll need the following things installed:
 * `trained_models/`: Pretrained models are saved here
 
 ## Running the code
-The first step is to obtain some pretrained MNIST models using: `python model_pretrainers/train_binary_mnist.py --config cfg/<config_file>`
+Firstly, make sure that your database is up and running. Place the `.my.cnf` file in the project's root directory. All the results are logged in the mariadb database. For an example on how to fetch and plot these, see the `results/` folder.
 
-Next up, evaluate the pruners on these pretrained models using: `./BinaryMNISTPruning --config cfg/<config_file>`
+#### Feature Decorrelation
+Run the experiments using: 
+
+`./GNTDecorrelation --config cfg/<config_file> --run ::: {0..<num_rums>}`
+#### Feature Testing
+Obtain some pretrained MNIST models using: 
+
+`python model_pretrainers/train_binary_mnist.py --config cfg/<config_file>`
+
+Evaluate the pruners on these pretrained models using: 
+
+`./BinaryMNISTPruning --config cfg/<config_file> --run ::: {0..<num_runs>}`
 
 See `cfg/` for example of some config files.
