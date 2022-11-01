@@ -2,7 +2,7 @@
 ![Build](https://github.com/haseebs/online-network-pruning/actions/workflows/cmake.yml/badge.svg?event=push) ![cpplint](https://github.com/haseebs/online-network-pruning/actions/workflows/cpplint.yml/badge.svg?event=push)
 
 This repository contains the code for implementing and evaluating neural network pruners in the online continual
-learning setting. Currently, the testing is done on the MNIST classification task.
+learning setting.
 
 ## Requirements
 In order to run this project, you'll need the following things installed:
@@ -22,7 +22,7 @@ In order to run this project, you'll need the following things installed:
 * `model_pretrainers/`: Pytorch code for pretraining and saving MNIST models
 * `cfg/`: Config files
 * `data/`: Dataset files are saved here
-* `notebooks/`: Plotting and visualization of results
+* `results/`: Notebooks for plotting and visualization of results
 * `tests/`: Misc tests
 * `trained_models/`: Pretrained models are saved here
 
