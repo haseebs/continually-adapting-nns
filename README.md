@@ -1,8 +1,24 @@
-# Online Network Pruning
+# Continually Adapting Networks
 ![Build](https://github.com/haseebs/online-network-pruning/actions/workflows/cmake.yml/badge.svg?event=push) ![cpplint](https://github.com/haseebs/online-network-pruning/actions/workflows/cpplint.yml/badge.svg?event=push)
 
-This repository contains the code for implementing and evaluating neural network pruners in the online continual
-learning setting.
+The vision for this project is to build algorithms for the automatic
+adaptation of neural networks based solely on the observed stream of
+experience in order to obtain a compact representation.
+The focus here is on two main components: Generation/discovery and Testing/pruning of the features.
+Currently, there are two active research directions in this project:
+
+1) Feature Decorrelator
+When rapidly generating many features, we end up with many highly correlated features.
+The challenge here is to detect and remove these redundant features online and in a
+scalable way. Additionally, maintaining the model performance after removing these
+features is not trivial since these features often tend to have high utilities
+(high contributions to the output).
+
+2) Feature Tester
+Feature testing here involves quickly and accurately evaluating the features to
+determine which ones we should keep and which we can replace. Most existing
+pruning strategies are unsuitable here since they are too expensive
+or unsuitable to run online.
 
 ## Requirements
 In order to run this project, you'll need the following things installed:
