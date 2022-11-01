@@ -126,6 +126,17 @@ float max(float a, float b) {
 	return b;
 }
 
+std::vector<float> sort_copy(const std::vector<float> &values){
+  std::vector<float> sorted_vec(values.size());
+  std::partial_sort_copy(begin(values), end(values), begin(sorted_vec), end(sorted_vec));
+  return sorted_vec;
+}
+
+float min_idx(std::vector<float> values) {
+  auto it = std::min_element(values.begin(), values.end());
+  return std::distance(std::begin(values), it);
+}
+
 std::vector<float> softmax(const std::vector<float> &values) {
 	float max_val = max(values);
 	std::vector<float> results;
@@ -158,17 +169,27 @@ std::vector<float> mean(const std::vector<std::vector<float> > &values) {
 	return ans_vector;
 }
 
+float median(const std::vector<float> &values) {
+  std::vector<float> sorted = sort_copy(values);
+  return sorted[int(values.size() / 2)];
+}
+
 uniform_random::uniform_random(int seed) {
-	this->mt = std::mt19937(seed);
-	this->dist = std::uniform_real_distribution<float>(-1, 1);
+  this->mt = std::mt19937(seed);
+  this->dist = std::uniform_real_distribution<float>(-1, 1);
+}
+
+uniform_random::uniform_random(int seed, float min_v, float max_v) {
+  this->mt = std::mt19937(seed);
+  this->dist = std::uniform_real_distribution<float>(min_v, max_v);
 }
 
 std::vector<float> uniform_random::get_random_vector(int size) {
-	std::vector<float> output;
-	output.reserve(size);
-	for (int counter = 0; counter < size; counter++)
-		output.push_back(dist(mt));
-	return output;
+  std::vector<float> output;
+  output.reserve(size);
+  for (int counter = 0; counter < size; counter++)
+    output.push_back(dist(mt));
+  return output;
 }
 
 normal_random::normal_random(int seed, float mean, float stddev) {

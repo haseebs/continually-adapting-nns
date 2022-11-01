@@ -23,6 +23,10 @@ float min(float, float);
 
 float max(float, float);
 
+std::vector<float> sort_copy(const std::vector<float> &values);
+
+float min_idx(std::vector<float> values);
+
 std::vector<float> softmax(const std::vector<float> &);
 
 float sum(const std::vector<float> &);
@@ -35,6 +39,8 @@ int argmax(std::vector < float > );
 
 std::vector<float> mean(const std::vector<std::vector<float>> &);
 
+float median(const std::vector<float> &);
+
 std::vector<float> one_hot_encode(int no, int total_numbers);
 
 class uniform_random {
@@ -43,6 +49,7 @@ class uniform_random {
 
  public:
   explicit uniform_random(int seed);
+  explicit uniform_random(int seed, float min_v, float max_v);
 
   std::vector<float> get_random_vector(int size);
 };

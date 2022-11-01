@@ -49,6 +49,16 @@ add_executable(BinaryMNISTPruning src/utils.cpp include/utils.h include/experime
 #        include/json.hpp tests/cpp_mnist_prediction.cpp)
 #
 
+
+# For testing decorrelators when using generate and test
+add_executable(SingleLayerGenerator include/experiment/Experiment.h src/experiment/Experiment.cpp include/experiment/Database.h
+        src/experiment/Database.cpp include/experiment/Metric.h src/experiment/Metric.cpp
+        src/utils.cpp include/utils.h src/nn/utils.cpp include/nn/utils.h
+        include/nn/networks/single_layer_network.h src/nn/networks/single_layer_network.cpp
+        include/nn/synced_neuron.h include/nn/synced_synapse.h src/nn/synced_neuron.cpp src/nn/synced_synapse.cpp
+        include/nn/dynamic_elem.h include/nn/message.h src/nn/dynamic_elem.cpp src/nn/message.cpp
+        experiment_single_layer_generator.cpp)
+
 # For counting the total number of runs based on the config file
 add_executable(Count include/json.hpp include/utils.h src/utils.cpp include/experiment/Experiment.h include/experiment/Metric.h include/experiment/Database.h src/experiment/Metric.cpp src/experiment/Database.cpp src/experiment/Experiment.cpp
         count_configs.cpp)
@@ -67,6 +77,9 @@ target_link_libraries(FlexibleNN PUBLIC torch)
 target_link_libraries(BinaryMNISTPruning PUBLIC tbb)
 target_link_libraries(BinaryMNISTPruning PUBLIC mariadb)
 target_link_libraries(BinaryMNISTPruning PUBLIC torch)
+
+target_link_libraries(SingleLayerGenerator PUBLIC tbb)
+target_link_libraries(SingleLayerGenerator PUBLIC mariadb)
 
 #target_link_libraries(TestLinearModel PUBLIC tbb)
 #target_link_libraries(TestLinearModel PUBLIC mariadb)
