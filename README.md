@@ -18,19 +18,17 @@ In order to run this project, you'll need the following things installed:
 * Compile: `bash compile.sh`
 
 ## Directory Structure
-* `include` `src`: Implementation of network primitives and pruning strategies in C++
-* `model_pretrainers`: Pytorch code for pretraining and saving MNIST models
-* `cfg`: Config files
-* `data`: Dataset files are saved here
-* `notebooks`: Plotting and visualization of results
-* `tests`: Misc tests
-* `trained_models`: Pretrained models are saved here
+* `include/`, `src/`: Implementation of network primitives and pruning strategies in C++
+* `model_pretrainers/`: Pytorch code for pretraining and saving MNIST models
+* `cfg/`: Config files
+* `data/`: Dataset files are saved here
+* `notebooks/`: Plotting and visualization of results
+* `tests/`: Misc tests
+* `trained_models/`: Pretrained models are saved here
 
 ## Running the code
-The first step is to obtain some pretrained MNIST models using: `python
-model_pretrainers/train_binary_mnist.py --config cfg/<config_file>`
+The first step is to obtain some pretrained MNIST models using: `python model_pretrainers/train_binary_mnist.py --config cfg/<config_file>`
 
-Next up, evaluate the pruners on these pretrained models using:
-`./BinaryMNISTPruning --config cfg/<config_file>`
+Next up, evaluate the pruners on these pretrained models using: `./BinaryMNISTPruning --config cfg/<config_file>`
 
 See `cfg/` for example of some config files.
