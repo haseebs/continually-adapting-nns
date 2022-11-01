@@ -173,9 +173,11 @@ void SingleLayerNetwork::replace_features_with_idx(int feature_idx) {
 	});
 }
 
+
 float SingleLayerNetwork::get_normalized_value(int idx){
 	return (intermediate_neurons[idx]->value - feature_mean[idx]) / sqrt(feature_std[idx]);
 }
+
 
 void SingleLayerNetwork::calculate_all_correlations() {
 	//TODO the correlations map needs to be cleaned up for removed features
@@ -191,19 +193,15 @@ void SingleLayerNetwork::calculate_all_correlations() {
 	}
 }
 
+
 void SingleLayerNetwork::update_random_correlation_selections_using_thresh(bool age_restriction){
 	std::vector<intpair > expired_pairs; //pairs that we gotta stop considering
-	//std::cout << "all pairs: " << std::endl;
 	for (auto & [id_pair, corr] : random_feature_correlations) {
-		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
 		if (fabs(corr) < 0.85)
 			expired_pairs.push_back(id_pair);
 	}
 
 	for (auto & id_pair : expired_pairs) {
-		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
 		random_feature_correlations.erase(id_pair);
 		random_feature_correlations_ages.erase(id_pair);
 	}
@@ -240,56 +238,15 @@ void SingleLayerNetwork::update_random_correlation_selections_using_thresh(bool 
   std::cout << "sampled: " << total_sampled << std::endl;
 }
 
-//void SingleLayerNetwork::update_random_correlation_selections(bool age_restriction){
-//	std::vector<intpair > expired_pairs; //pairs that we gotta stop considering
-//	//std::cout << "all pairs: " << std::endl;
-//	for (auto & [id_pair, corr] : random_feature_correlations) {
-//		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-//		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
-//		if (fabs(corr) < 0.85)
-//			expired_pairs.push_back(id_pair);
-//	}
-//
-//	for (auto & id_pair : expired_pairs) {
-//		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-//		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
-//		random_feature_correlations.erase(id_pair);
-//		random_feature_correlations_ages.erase(id_pair);
-//	}
-//
-//	std::uniform_int_distribution<int> index_sampler(0, this->intermediate_neurons.size() - 1);
-//  int total_pair_selections = intermediate_neurons.size() * intermediate_neurons.size() //TODO
-//	while (random_feature_correlations.size() < intermediate_neurons.size()) {
-//		int i = index_sampler(mt);
-//		int j = index_sampler(mt);
-//		// ensure ordering of idxes in pairs so we dont have to check both
-//		if (i == j)
-//			continue;
-//		if (i > j)
-//			std::swap(i, j);
-//
-//		auto id_pair = std::make_pair(intermediate_neurons[i]->id, intermediate_neurons[j]->id);
-//		if (random_feature_correlations.contains(id_pair) || (age_restriction && (intermediate_neurons[i]->neuron_age < 4500 || intermediate_neurons[j]->neuron_age < 4500)))
-//			continue;
-//		random_feature_correlations[id_pair] = 0;
-//		//random_feature_correlations[id_pair] = std::max((float)-1.0, std::min((float)1.0, get_normalized_value(i)*get_normalized_value(j)));
-//		random_feature_correlations_ages[id_pair] = 0;
-//	}
-//}
+
 void SingleLayerNetwork::update_random_correlation_selections(bool age_restriction, float perc_of_total_pairs_to_estimate){
-  //std::cout << random_feature_correlations.size() << ":" << feature_correlations.size() << std::endl;
 	std::vector<intpair > expired_pairs; //pairs that we gotta stop considering
-	//std::cout << "all pairs: " << std::endl;
 	for (auto & [id_pair, corr] : random_feature_correlations) {
-		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
 		if (fabs(corr) < 0.85)
 			expired_pairs.push_back(id_pair);
 	}
 
 	for (auto & id_pair : expired_pairs) {
-		//std::cout << intermediate_neurons[id_pair.first]->id << "\t->\t" << intermediate_neurons[id_pair.second]->id << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_pair.first]->neuron_age << "-" << intermediate_neurons[id_pair.second]->neuron_age << std::endl;
-		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
 		random_feature_correlations.erase(id_pair);
 		random_feature_correlations_ages.erase(id_pair);
 	}
@@ -314,7 +271,6 @@ void SingleLayerNetwork::update_random_correlation_selections(bool age_restricti
 		//random_feature_correlations[id_pair] = std::max((float)-1.0, std::min((float)1.0, get_normalized_value(i)*get_normalized_value(j)));
 		random_feature_correlations_ages[id_pair] = 0;
 	}
-  //std::cout << random_feature_correlations.size() << ":" << feature_correlations.size() << std::endl;
 }
 
 void SingleLayerNetwork::calculate_random_correlations(int min_estimation_period){
@@ -327,8 +283,6 @@ void SingleLayerNetwork::calculate_random_correlations(int min_estimation_period
     else
       corr = (1 - alpha) * corr + alpha * get_normalized_value(id_to_idx[id_pair.first]) * get_normalized_value(id_to_idx[id_pair.second]);
 		random_feature_correlations_ages[id_pair]++;
-		//std::cout << id_pair.first << "\t->\t" << id_pair.second << "\t:\t" << feature_correlations[id_pair] << "\t age: " << intermediate_neurons[id_to_idx[id_pair.first]]->neuron_age << "-" << intermediate_neurons[id_to_idx[id_pair.second]]->neuron_age << std::endl;
-		//std::cout << "\t corr: " << random_feature_correlations[id_pair] << "\t corr age: " << random_feature_correlations_ages[id_pair] << std::endl;
 	}
 }
 
@@ -357,21 +311,8 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 	}
 
 	if (id_pair_correlations.size()) {
-		//TODO iterative maxing should be faster
-		//std::sort(id_pair_correlations.begin(),
-		//          id_pair_correlations.end(),
-		//          []( const std::pair<intpair, float> &a, const std::pair<intpair, float> &b ) {
-		//	return fabs(a.second) > fabs(b.second);
-		//} );
-
     // no sorting to get rid of maximization bias, we just randomly sample above threshold
     std::uniform_int_distribution<int> corr_index_sampler(0, id_pair_correlations.size() - 1);
-
-		//std::cout << "Sorted correlations : " << id_pair_correlations.size() << std::endl;
-		//for (auto const &i : id_pair_correlations) {
-		//  std::cout << id_to_idx[i.first.first] << "(" << intermediate_neurons[id_to_idx[i.first.first]]->neuron_age << ")" << "->" << id_to_idx[i.first.second] << "(" << intermediate_neurons[id_to_idx[i.first.second]]->neuron_age << ")" << ":" << i.second;
-		//  std::cout << " true corr: " << feature_correlations[i.first] << " est age: " << random_feature_correlations_ages[i.first] << std::endl;
-		//}
 
 		for (int c = 0; c < max_correlated_replacements; c++) {
 			(void)c;
@@ -409,7 +350,6 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 				break;
 		}
 	}
-
 	while (replaced_counter < max_replacements) {
 		float least_useful_idx = min_idx(feature_utility_trace);
 		std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
@@ -418,6 +358,7 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 	}
 	return correlated_graphviz;
 }
+
 
 std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_features_n2_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate) {
 	std::vector<std::pair<intpair, float> > id_pair_correlations;
@@ -445,20 +386,8 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 	}
 
 	if (id_pair_correlations.size()) {
-		//TODO iterative maxing should be faster
-		//std::sort(id_pair_correlations.begin(),
-		//          id_pair_correlations.end(),
-		//          []( const std::pair<intpair, float> &a, const std::pair<intpair, float> &b ) {
-		//	return fabs(a.second) > fabs(b.second);
-		//} );
-
     // no sorting to get rid of maximization bias, we just randomly sample above threshold
     std::uniform_int_distribution<int> corr_index_sampler(0, id_pair_correlations.size() - 1);
-		//std::cout << "Sorted correlations : " << std::endl;
-		//for (auto const &i : id_pair_correlations) {
-		//	if (fabs(i.second) >0.85)
-		//		std::cout << id_to_idx[i.first.first] << "(" << intermediate_neurons[id_to_idx[i.first.first]]->neuron_age << ")" << "->" << id_to_idx[i.first.second] << "(" << intermediate_neurons[id_to_idx[i.first.second]]->neuron_age << ")" << ":" << i.second << std::endl;
-		//}
 		for (int c = 0; c < max_correlated_replacements; c++) {
 			(void)c;
 			auto id_pair = id_pair_correlations[corr_index_sampler(this->third_mt)].first;
@@ -493,14 +422,8 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 			id_pair_correlations.erase(it, id_pair_correlations.end());
 			if(id_pair_correlations.size() == 0)
 				break;
-			//std::cout << "printing again" << std::endl;
-			//for (auto const &i : id_pair_correlations) {
-			//	if (fabs(i.second) >0.85)
-			//		std::cout << id_to_idx[i.first.first] << "(" << intermediate_neurons[id_to_idx[i.first.first]]->neuron_age << ")" << "->" << id_to_idx[i.first.second] << "(" << intermediate_neurons[id_to_idx[i.first.second]]->neuron_age << ")" << ":" << i.second << std::endl;
-			//}
 		}
 	}
-
 	std::cout << replaced_counter << std::endl;
 	while (replaced_counter < max_replacements) {
 		float least_useful_idx = min_idx(feature_utility_trace);
@@ -518,11 +441,11 @@ void SingleLayerNetwork::replace_features(float perc_to_replace) {
 
 	while (replaced_counter < max_replacements) {
 		float least_useful_idx = min_idx(feature_utility_trace);
-		//std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
 		replace_features_with_idx(least_useful_idx);
 		replaced_counter += 1;
 	}
 }
+
 
 void SingleLayerNetwork::replace_features_randomly(float perc_to_replace) {
 	std::uniform_int_distribution<int> index_sampler(0, prediction_weights.size() - 1);
@@ -532,7 +455,6 @@ void SingleLayerNetwork::replace_features_randomly(float perc_to_replace) {
 	while (replaced_counter < max_replacements) {
 		float least_useful_idx = min_idx(feature_utility_trace);
 		int replacement_idx = index_sampler(this->mt);
-		std::cout << "replacing: " << replacement_idx << "\t util: " << feature_utility_trace[replacement_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
 		replace_features_with_idx(replacement_idx);
 		replaced_counter += 1;
 	}
@@ -541,9 +463,7 @@ void SingleLayerNetwork::replace_features_randomly(float perc_to_replace) {
 
 float SingleLayerNetwork::forward(std::vector<float> inputs) {
 	//TODO remove initial non-stationarity due to normalization in target network?
-//  Set input neurons value
-//  if(this->time_step%100000 == 99999)
-//    this->step_size *= 0.8;
+  // Set input neurons value
 	// inputs can be larger than input_neurons.size(). we simply ignore the rest
 	for (int i = 0; i < input_neurons.size(); i++) {
 		this->input_neurons[i]->value = inputs[i];
@@ -604,6 +524,7 @@ void SingleLayerNetwork::print_all_correlations() {
 	std::cout << "total correlated: " << count << std::endl;
 }
 
+
 int SingleLayerNetwork::count_mature_features() {
 	int counter = 0;
 	for (const auto & feature : intermediate_neurons) {
@@ -627,9 +548,9 @@ int SingleLayerNetwork::count_highly_correlated_features() {
 			}
 		}
 	}
-
 	return correlated_feature_ids.size();
 }
+
 
 void SingleLayerNetwork::print_all_statistics() {
 	for (int i = 0; i < intermediate_neurons.size(); i++) {
@@ -637,6 +558,7 @@ void SingleLayerNetwork::print_all_statistics() {
 		std::cout << "\tstd: " << feature_std[i] << std::endl;
 	}
 }
+
 
 void SingleLayerNetwork::zero_grad() {
 	//for (int counter = 0; counter < intermediate_neurons.size(); counter++) {
@@ -646,9 +568,9 @@ void SingleLayerNetwork::zero_grad() {
 	for (int index = 0; index < intermediate_neurons.size(); index++) {
 		prediction_weights_gradient[index] = 0;
 	}
-
 	bias_gradients = 0;
 }
+
 
 std::vector<float> SingleLayerNetwork::get_feature_utilities() {
 	std::vector<float> my_vec;
@@ -659,6 +581,7 @@ std::vector<float> SingleLayerNetwork::get_feature_utilities() {
 	return my_vec;
 }
 
+
 std::vector<float> SingleLayerNetwork::get_prediction_weights() {
 	std::vector<float> my_vec;
 	my_vec.reserve(prediction_weights.size());
@@ -667,6 +590,7 @@ std::vector<float> SingleLayerNetwork::get_prediction_weights() {
 	}
 	return my_vec;
 }
+
 
 std::vector< std::pair < float, int >> SingleLayerNetwork::get_prediction_weight_statistics(){
 	std::vector<std::pair < float, int>> my_vec;
@@ -678,6 +602,7 @@ std::vector< std::pair < float, int >> SingleLayerNetwork::get_prediction_weight
 	return my_vec;
 }
 
+
 std::vector<float> SingleLayerNetwork::get_prediction_gradients() {
 	std::vector<float> my_vec;
 	my_vec.reserve(prediction_weights_gradient.size());
@@ -687,13 +612,13 @@ std::vector<float> SingleLayerNetwork::get_prediction_gradients() {
 	return my_vec;
 }
 
-void SingleLayerNetwork::backward() {
 
+void SingleLayerNetwork::backward() {
 	for (int index = 0; index < prediction_weights.size(); index++)
 		prediction_weights_gradient[index] += (intermediate_neurons[index]->value - feature_mean[index]) / sqrt(feature_std[index]);
-
 	bias_gradients += 1;
 }
+
 
 void SingleLayerNetwork::update_parameters_only_prediction(float error) {
 	//TODO assumes single outgoing weight from interm neuron
@@ -701,12 +626,14 @@ void SingleLayerNetwork::update_parameters_only_prediction(float error) {
 		prediction_weights[index] += prediction_weights_gradient[index] * error * step_size;
 }
 
+
 void SingleLayerNetwork::update_parameters_only_prediction(float error, float l2_lambda, float l1_lambda) {
 	//TODO assumes single outgoing weight from interm neuron
 	for (int index = 0; index < prediction_weights.size(); index++)
 		//prediction_weights[index] += step_size * (error * prediction_weights_gradient[index] - l2_lambda * prediction_weights[index] - l1_lambda * (fabs(prediction_weights[index])/prediction_weights[index]));
 		prediction_weights[index] += step_size * (error * prediction_weights_gradient[index] - l2_lambda * prediction_weights[index]);
 }
+
 
 void SingleLayerNetwork::update_parameters(float error) {
 	//TODO assumes single outgoing weight from interm neuron
@@ -717,14 +644,14 @@ void SingleLayerNetwork::update_parameters(float error) {
 	}
 	for (int index = 0; index < prediction_weights.size(); index++)
 		prediction_weights[index] += prediction_weights_gradient[index] * error * step_size;
-
 //  bias += error * step_size * 0.001 * bias_gradients;
 }
 
-float SingleLayerNetwork::read_output_values() {
 
+float SingleLayerNetwork::read_output_values() {
 	return predictions;
 }
+
 
 SingleLayerNetwork::~SingleLayerNetwork() {
 };
