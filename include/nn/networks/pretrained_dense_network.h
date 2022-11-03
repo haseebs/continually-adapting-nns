@@ -17,6 +17,7 @@ class PretrainedDenseNetwork : public SyncedNetwork {
  protected:
 
   void update_activation_trace_estimates();
+  void update_gradient_trace_estimates();
   void update_utility_propagation_estimates();
   void update_dropout_utility_estimates(const std::vector<float>& inp, std::vector<float> normal_predictions, float dropout_perc);
 
@@ -61,6 +62,7 @@ class PretrainedDenseNetwork : public SyncedNetwork {
   void prune_using_dropout_utility_estimator();
   void prune_using_utility_propoagation();
   void prune_using_trace_of_activation_magnitude();
+  void prune_using_trace_of_gradient();
   void prune_using_weight_magnitude_pruner();
   void prune_using_random_pruner();
 

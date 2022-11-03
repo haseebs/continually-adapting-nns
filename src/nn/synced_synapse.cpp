@@ -34,6 +34,7 @@ SyncedSynapse::SyncedSynapse(SyncedNeuron *input, SyncedNeuron *output, float w,
 	this->synapse_local_utility_trace = 0;
 	this->synapse_utility_to_distribute = 0;
 	this->activation_trace = 0;
+	this->gradient_trace= 0;
 	this->is_dropped_out = false;
 	//TODO compare initializations
 	this->dropout_utility_estimate = 0;
@@ -42,6 +43,10 @@ SyncedSynapse::SyncedSynapse(SyncedNeuron *input, SyncedNeuron *output, float w,
 
 void SyncedSynapse::update_activation_trace() {
 	this->activation_trace = this->trace_decay_rate * this->activation_trace + (1-trace_decay_rate) * fabs(this->input_neuron->value * this->weight);
+}
+
+void SyncedSynapse::update_gradient_trace() {
+	this->activation_trace = this->trace_decay_rate * this->gradient_trace + (1-trace_decay_rate) * fabs(this->credit * this->weight);
 }
 
 void SyncedSynapse::set_utility_to_keep(float util) {

@@ -271,6 +271,19 @@ void PretrainedDenseNetwork::update_utility_estimates(const std::string& pruner,
 		// we can have multiple fake forward passes to estimate the utilities using dropout
 		for (int k = 0; k < dropout_iterations; k++)
 			this->update_dropout_utility_estimates(input, prediction, dropout_perc);
+  else if (pruner == "gradient_trace")
+    this->update_gradient_trace_estimates();
+}
+
+
+void PretrainedDenseNetwork::update_gradient_trace_estimates(){
+	std::for_each(
+		std::execution::unseq,
+		all_synapses.begin(),
+		all_synapses.end(),
+		[&](SyncedSynapse *s) {
+		s->update_gradient_trace();
+	});
 }
 
 
@@ -355,6 +368,26 @@ void PretrainedDenseNetwork::prune_using_dropout_utility_estimator() {
 	                 all_synapses_copy.end(),
 	                 []( auto a, auto b ) {
 		return std::fabs(a->dropout_utility_estimate) < std::fabs(b->dropout_utility_estimate);
+	} );
+
+	for (int i = 0; i < total_removals; i++)
+		all_synapses_copy[i]->is_useless = true;
+}
+
+
+// Select the weights to prune based on the trace of weight * gradient
+void PretrainedDenseNetwork::prune_using_trace_of_gradient() {
+	if (all_synapses.size() < this->min_synapses_to_keep)
+		return;
+
+	int total_removals = 1;
+	std::vector<SyncedSynapse *> all_synapses_copy(this->all_synapses);
+
+	std::nth_element(all_synapses_copy.begin(),
+	                 all_synapses_copy.begin() + total_removals,
+	                 all_synapses_copy.end(),
+	                 []( auto a, auto b ) {
+		return std::fabs(a->gradient_trace) < std::fabs(b->gradient_trace);
 	} );
 
 	for (int i = 0; i < total_removals; i++)
@@ -465,6 +498,8 @@ void PretrainedDenseNetwork::prune_weights(std::string pruner){
 				this->prune_using_trace_of_activation_magnitude();
 			else if (pruner == "dropout_utility_estimator")
 				this->prune_using_dropout_utility_estimator();
+			else if (pruner == "gradient_trace")
+				this->prune_using_trace_of_gradient();
 			else if (pruner != "none") {
 				std::cout << "Invalid pruner specified" << std::endl;
 				exit(1);
