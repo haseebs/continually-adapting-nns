@@ -73,6 +73,7 @@ SingleLayerNetwork::SingleLayerNetwork(float step_size,
 		else
 			prediction_weights.push_back(0);
 		prediction_weights_gradient.push_back(0);
+        prediction_weights_gradient_trace.push_back(0);
 		feature_utility_trace.push_back(0); // trace of normalized feature value * outgoing weight
 		feature_mean.push_back(0);
 		feature_std.push_back(1);
@@ -139,6 +140,7 @@ void SingleLayerNetwork::replace_features_with_idx(int feature_idx) {
 	}
 	prediction_weights[feature_idx] = 0;
 	prediction_weights_gradient[feature_idx] = 0;
+    prediction_weights_gradient_trace[feature_idx] = 0;
 	feature_utility_trace[feature_idx] = median_feature_utility;
 	feature_mean[feature_idx] = 0;
 	feature_std[feature_idx] = 1;
@@ -615,7 +617,8 @@ std::vector<float> SingleLayerNetwork::get_prediction_gradients() {
 
 void SingleLayerNetwork::backward() {
 	for (int index = 0; index < prediction_weights.size(); index++)
-		prediction_weights_gradient[index] += (intermediate_neurons[index]->value - feature_mean[index]) / sqrt(feature_std[index]);
+        prediction_weights_gradient[index] += (intermediate_neurons[index]->value - feature_mean[index]) /
+                                              sqrt(feature_std[index]);
 	bias_gradients += 1;
 }
 
@@ -632,6 +635,19 @@ void SingleLayerNetwork::update_parameters_only_prediction(float error, float l2
 	for (int index = 0; index < prediction_weights.size(); index++)
 		//prediction_weights[index] += step_size * (error * prediction_weights_gradient[index] - l2_lambda * prediction_weights[index] - l1_lambda * (fabs(prediction_weights[index])/prediction_weights[index]));
 		prediction_weights[index] += step_size * (error * prediction_weights_gradient[index] - l2_lambda * prediction_weights[index]);
+}
+
+
+void SingleLayerNetwork::update_parameters_only_prediction_RMSProp(float error) {
+    float eps = 1e-8;
+    float a = 0.99;
+    for (int i = 0; i < prediction_weights.size(); i++) {
+        float grad = error * prediction_weights_gradient[i];
+        // compute trace of squared gradient
+        prediction_weights_gradient_trace[i] = a * prediction_weights_gradient_trace[i] + (1 - a) * pow(grad, 2);
+        // update using the RMSProp optimizer
+        prediction_weights[i] += step_size * grad / sqrt(prediction_weights_gradient_trace[i] + eps);
+    }
 }
 
 

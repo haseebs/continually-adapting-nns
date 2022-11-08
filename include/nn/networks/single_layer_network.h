@@ -43,6 +43,7 @@ class SingleLayerNetwork {
   std::vector<float> feature_utility_trace;
 
   std::vector<float> prediction_weights_gradient;
+  std::vector<float> prediction_weights_gradient_trace;
 
   std::map<int, int> id_to_idx; // intermediate_neurons[idx]->id to idx
   std::map<intpair, float> feature_correlations;
@@ -75,6 +76,7 @@ class SingleLayerNetwork {
   void update_parameters(float error);
   void update_parameters_only_prediction(float error);
   void update_parameters_only_prediction(float error, float l2_lambda, float l1_lambda);
+  void update_parameters_only_prediction_RMSProp(float error);
 
   std::vector<float> get_prediction_gradients();
   std::vector<float> get_prediction_weights();
@@ -96,6 +98,7 @@ class SingleLayerNetwork {
   float get_normalized_values(int idx);
 
   std::string get_graph(int id1, int id2);
+
 };
 
 
