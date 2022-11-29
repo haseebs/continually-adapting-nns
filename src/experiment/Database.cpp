@@ -3,7 +3,7 @@
 //
 
 #include "../../include/experiment/Database.h"
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <string>
 #include <iostream>
 #include <cstring>

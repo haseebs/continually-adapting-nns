@@ -46,7 +46,7 @@ void SyncedSynapse::update_activation_trace() {
 }
 
 void SyncedSynapse::update_gradient_trace() {
-	this->activation_trace = this->trace_decay_rate * this->gradient_trace + (1-trace_decay_rate) * fabs(this->credit * this->weight);
+	this->gradient_trace = this->trace_decay_rate * this->gradient_trace + (1-trace_decay_rate) * fabs(this->credit * this->weight);
 }
 
 void SyncedSynapse::set_utility_to_keep(float util) {

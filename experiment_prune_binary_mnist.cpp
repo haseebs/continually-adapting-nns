@@ -123,7 +123,7 @@ int main(int argc, char *argv[]){
 			accuracy *= alpha;
 
 		// compute gradients
-		if (update_weights)
+		if (true || update_weights)
 			net.backward(y);
 
 		net.update_utility_estimates(exp->get_string_param("pruner_type"),
