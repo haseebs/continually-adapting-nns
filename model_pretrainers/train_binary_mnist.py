@@ -93,7 +93,7 @@ def main():
     )
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST(
-            "../mnist_data",
+            "../data",
             train=False,
             transform=transforms.Compose(
                 [
@@ -113,13 +113,19 @@ def main():
         model.cuda()
 
     #optimizer = optim.Adam(model.parameters(), lr=exp.get_float_param("step_size"))
-    optimizer = optim.SGD(model.parameters(), lr=exp.get_float_param("step_size"))
+    optimizer = optim.SGD(model.parameters(),
+                          lr=exp.get_float_param("step_size"),
+                          weight_decay=exp.get_float_param("weight_decay"))
 
     step = 0
     running_acc = 0
     running_err = 0
     test_acc = 0
     for epoch in range(1, exp.get_int_param("epochs") + 1):
+        if epoch > 19 and epoch % 20 == 0:
+            print("reducing step size")
+            for g in optimizer.param_groups:
+                    g['lr'] = g['lr'] * 0.1;
         model.train()
         error_list = []
         for batch_idx, (data, target) in enumerate(train_loader):
@@ -148,26 +154,25 @@ def main():
                 print(
                     "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tRunning Acc: {:.3f}".format(
                         epoch,
-                        batch_idx,
+                        batch_idx * exp.get_int_param("batch_size"),
                         len(train_loader.dataset),
                         100.0 * batch_idx / len(train_loader),
                         loss.data,
                         running_acc,
                     )
                 )
-            if step % 1000 == 0:
-                error_list.append(
-                    [
-                        str(exp.get_int_param("run")),
-                        str(epoch),
-                        str(step),
-                        str(running_acc.detach().item()),
-                        str(running_err),
-                        str(test_acc),
-                        str(sum(p.numel() for p in model.parameters())),
-                    ]
-                )
         test_acc = test(exp.get_int_param("cuda"), model, test_loader).detach().item()
+        error_list.append(
+            [
+                str(exp.get_int_param("run")),
+                str(epoch),
+                str(step),
+                str(running_acc.detach().item()),
+                str(running_err),
+                str(test_acc),
+                str(sum(p.numel() for p in model.parameters())),
+            ]
+        )
         error_table.add_values(error_list)
 
     print("total time: \t", str(timedelta(seconds=timer() - start)))
@@ -178,7 +183,7 @@ def main():
     #if exp.get_int_param("cuda"):
     #    sample = sample
     traced_script_module = torch.jit.trace(model, sample)
-    traced_script_module.save("../trained_models/mnist_binary_pretrained_" + str(exp.get_int_param("seed")) + ".pt")
+    traced_script_module.save("../trained_models/mnist_binary_pretrained_with_decay_" + str(exp.get_int_param("seed")) + ".pt")
 
 
 if __name__ == "__main__":

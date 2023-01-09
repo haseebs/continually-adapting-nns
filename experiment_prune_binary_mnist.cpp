@@ -148,7 +148,7 @@ int main(int argc, char *argv[]){
 			error_logger.push_back(error_vec);
 		}
 
-		if (step % 500000 == 0) {
+		if (false && step % 500000 == 0) {
 			std::cout << "Step " << step << std::endl;
 			std::cout << "Network confing\n";
 			std::cout << "No\tSize\tSynapses\tOutput\n";
