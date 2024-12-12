@@ -15,7 +15,7 @@ float sigmoid(float a) {
 	return (1.0) / (1.0 + exp(-1.0 * a));
 }
 
-float tanh(float a){
+float tanhLocal(float a){
 	return (exp(2*a) - 1)/(exp(2*a) + 1);
 }
 

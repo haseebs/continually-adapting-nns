@@ -1,0 +1,1 @@
+add_library(NN dynamic_elem.cpp message.cpp synced_neuron.cpp synced_synapse.cpp utils.cpp networks/single_layer_network.cpp networks/synced_network.cpp)

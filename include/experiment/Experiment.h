@@ -9,7 +9,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Database.h"
 #include "../json.hpp"
 
 class Experiment {
@@ -17,13 +16,13 @@ class Experiment {
   std::map<std::string, std::vector<std::string>> args;
 
   std::string output_dir;
-  Database d = Database();
 
   static std::vector<int> frequency_of_params(std::map<std::string, std::vector<std::string>> &args);
 
  public:
   std::map<std::string, std::string> args_for_run;
   int run;
+  int gpu;
   std::string database_name;
 
   Experiment(int name, char *argv[]);
@@ -36,7 +35,7 @@ class Experiment {
 
   std::string get_string_param(const std::string &);
 
-  std::vector<std::string> get_vector_param(const std::string &);
+  std::vector<std::string> get_vector_param(const std::string&);
 };
 
 class ExperimentJSON : public Experiment {
@@ -50,10 +49,9 @@ class ExperimentJSON : public Experiment {
   std::map<std::string, std::string> get_args_for_run(nlohmann::json j, int rank);
 };
 
-class CountConfig : public ExperimentJSON {
+class CountConfig : public ExperimentJSON{
  public:
   CountConfig(int argc, char *argv[]);
 };
 
 #endif  // INCLUDE_EXPERIMENT_EXPERIMENT_H_
-

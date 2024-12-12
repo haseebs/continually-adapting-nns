@@ -1,7 +1,6 @@
 #include <iostream>
 #include "include/utils.h"
 #include "include/experiment/Experiment.h"
-#include "include/experiment/Metric.h"
 #include <string>
 #include <random>
 #include <cmath>
@@ -15,21 +14,21 @@ int main(int argc, char *argv[]) {
 	Experiment *my_experiment = new ExperimentJSON(argc, argv);
 	if (my_experiment->get_int_param("sum_features") && !my_experiment->get_int_param("n2_decorrelate"))
 		exit(1);
-
-	Metric error_metric = Metric(my_experiment->database_name, "error_table",
-	                             std::vector < std::string > {"run", "step", "error", "n_correlated", "n_mature"},
-	                             std::vector < std::string > {"int", "int", "real", "int", "int"},
-	                             std::vector < std::string > {"run", "step"});
-
-	Metric correlation_metric = Metric(my_experiment->database_name, "correlated_graphs_table",
-	                                   std::vector < std::string > {"run", "step", "id",  "real_correlation", "estimated_correlation", "graph"},
-	                                   std::vector < std::string > {"int", "int", "int", "real", "real", "varchar(10000)"},
-	                                   std::vector < std::string > {"run", "step", "id"});
-
-	Metric summary_metric = Metric(my_experiment->database_name, "summary_table",
-	                               std::vector < std::string > {"run", "final_error", "final_n_correlated", "final_n_mature"},
-	                               std::vector < std::string > {"int", "real", "int", "int"},
-	                               std::vector < std::string > {"run"});
+	//
+	// Metric error_metric = Metric(my_experiment->database_name, "error_table",
+	//                              std::vector < std::string > {"run", "step", "error", "n_correlated", "n_mature"},
+	//                              std::vector < std::string > {"int", "int", "real", "int", "int"},
+	//                              std::vector < std::string > {"run", "step"});
+	//
+	// Metric correlation_metric = Metric(my_experiment->database_name, "correlated_graphs_table",
+	//                                    std::vector < std::string > {"run", "step", "id",  "real_correlation", "estimated_correlation", "graph"},
+	//                                    std::vector < std::string > {"int", "int", "int", "real", "real", "varchar(10000)"},
+	//                                    std::vector < std::string > {"run", "step", "id"});
+	//
+	// Metric summary_metric = Metric(my_experiment->database_name, "summary_table",
+	//                                std::vector < std::string > {"run", "final_error", "final_n_correlated", "final_n_mature"},
+	//                                std::vector < std::string > {"int", "real", "int", "int"},
+	//                                std::vector < std::string > {"run"});
 
 	std::vector<std::string> weight_col_names{ "run", "step"};
 	std::vector<std::string> weight_col_types{ "int", "int"};
@@ -42,10 +41,10 @@ int main(int argc, char *argv[]) {
 		weight_col_names.push_back("age" + std::to_string(i));
 		weight_col_types.push_back("int");
 	}
-	Metric weight_metric = Metric(my_experiment->database_name, "weights_table",
-	                              weight_col_names,
-	                              weight_col_types,
-	                              std::vector < std::string > {"run", "step"});
+	// Metric weight_metric = Metric(my_experiment->database_name, "weights_table",
+	//                               weight_col_names,
+	//                               weight_col_types,
+	//                               std::vector < std::string > {"run", "step"});
 
 	std::cout << "Program started \n";
 
@@ -93,7 +92,7 @@ int main(int argc, char *argv[]) {
 				cur_graphs.push_back(std::to_string(graph.first.second));
 				//cur_graphs.push_back(graph.second);
 				cur_graphs.push_back("NA");
-				correlation_metric.record_value(cur_graphs);
+				// correlation_metric.record_value(cur_graphs);
 			}
 		}
 
@@ -106,7 +105,7 @@ int main(int argc, char *argv[]) {
 				cur_weights.push_back(std::to_string(weight.first));
 			for (const auto &weight : current_weights)
 				cur_weights.push_back(std::to_string(weight.second));
-			weight_metric.record_value(cur_weights);
+			// weight_metric.record_value(cur_weights);
 		}
 
 		auto input = input_sampler.get_random_vector(total_inputs);
@@ -150,7 +149,7 @@ int main(int argc, char *argv[]) {
 			cur_error.push_back(std::to_string(running_error));
 			cur_error.push_back(std::to_string(learning_network.count_highly_correlated_features()));
 			cur_error.push_back(std::to_string(learning_network.count_mature_features()));
-			error_metric.record_value(cur_error);
+			// error_metric.record_value(cur_error);
 			std::cout << "\nstep:" << step << std::endl;
 			//print_vector(input);
 			//print_vector(learning_network.get_prediction_weights());
@@ -165,9 +164,9 @@ int main(int argc, char *argv[]) {
 		}
 		learning_network.zero_grad();
 		if (step % 100000 == 1) {
-			error_metric.commit_values();
-			correlation_metric.commit_values();
-			weight_metric.commit_values();
+			// error_metric.commit_values();
+			// correlation_metric.commit_values();
+			// weight_metric.commit_values();
 		}
 	}
 	std::vector<std::string> cur_error;
@@ -175,9 +174,9 @@ int main(int argc, char *argv[]) {
 	cur_error.push_back(std::to_string(running_error));
 	cur_error.push_back(std::to_string(learning_network.count_highly_correlated_features()));
 	cur_error.push_back(std::to_string(learning_network.count_mature_features()));
-	summary_metric.record_value(cur_error);
-	summary_metric.commit_values();
-	error_metric.commit_values();
-	correlation_metric.commit_values();
-	weight_metric.commit_values();
+	// summary_metric.record_value(cur_error);
+	// summary_metric.commit_values();
+	// error_metric.commit_values();
+	// correlation_metric.commit_values();
+	// weight_metric.commit_values();
 }

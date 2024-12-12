@@ -7,6 +7,7 @@
 #include <string>
 #include "../../../include/nn/networks/single_layer_network.h"
 #include "../../../include/nn/synced_neuron.h"
+
 //
 SingleLayerNetwork::SingleLayerNetwork(float step_size,
                                        int seed,
@@ -162,17 +163,23 @@ void SingleLayerNetwork::replace_features_with_idx(int feature_idx) {
 		return s->is_useless;
 	});
 	this->input_synapses.erase(it, this->input_synapses.end());
-
-	std::for_each(
-		std::execution::seq,
-		this->input_neurons.begin(),
-		this->input_neurons.end(),
-		[&](SyncedNeuron *n) {
+	for(auto& n : this->input_neurons)
+	{
 		auto it = std::remove_if(n->outgoing_synapses.begin(), n->outgoing_synapses.end(), [](SyncedSynapse *s){
 			return s->is_useless;
 		});
 		n->outgoing_synapses.erase(it, n->outgoing_synapses.end());
-	});
+	}
+	// std::for_each(
+	// 	std::execution::seq,
+	// 	this->input_neurons.begin(),
+	// 	this->input_neurons.end(),
+	// 	[&](SyncedNeuron *n) {
+	// 	auto it = std::remove_if(n->outgoing_synapses.begin(), n->outgoing_synapses.end(), [](SyncedSynapse *s){
+	// 		return s->is_useless;
+	// 	});
+	// 	n->outgoing_synapses.erase(it, n->outgoing_synapses.end());
+	// });
 }
 
 
@@ -471,21 +478,28 @@ float SingleLayerNetwork::forward(std::vector<float> inputs) {
 		this->input_neurons[i]->value = inputs[i];
 	}
 
-	std::for_each(
-		std::execution::seq,
-		this->intermediate_neurons.begin(),
-		this->intermediate_neurons.end(),
-		[&](SigmoidSyncedNeuron *n) {
+	for(auto& n : this->intermediate_neurons)
 		n->update_value(0);
-	});
 
-	std::for_each(
-		std::execution::seq,
-		this->intermediate_neurons.begin(),
-		this->intermediate_neurons.end(),
-		[&](SigmoidSyncedNeuron *n) {
+	// std::for_each(
+	// 	std::execution::seq,
+	// 	this->intermediate_neurons.begin(),
+	// 	this->intermediate_neurons.end(),
+	// 	[&](SigmoidSyncedNeuron *n) {
+	// 	n->update_value(0);
+	// });
+
+
+	for(auto& n : this->intermediate_neurons)
 		n->fire(0);
-	});
+
+	// std::for_each(
+	// 	std::execution::seq,
+	// 	this->intermediate_neurons.begin(),
+	// 	this->intermediate_neurons.end(),
+	// 	[&](SigmoidSyncedNeuron *n) {
+	// 	n->fire(0);
+	// });
 
 	for (int counter = 0; counter < intermediate_neurons.size(); counter++) {
 		feature_mean[counter] = feature_mean[counter] * 0.999 + 0.001 * intermediate_neurons[counter]->value;
