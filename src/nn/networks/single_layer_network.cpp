@@ -362,7 +362,7 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 }
 
 
-std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_features_n2_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate) {
+std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_features_n2_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate, bool use_generate_and_test) {
 	std::vector<std::pair<intpair, float> > id_pair_correlations;
 	std::vector<std::pair<floatpair, std::string> > correlated_graphviz;
 	int max_replacements = int(prediction_weights.size() * perc_to_replace);
@@ -372,12 +372,14 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
   std::cout << max_correlated_replacements << " <- max corr reps " << std::endl;
 
   // magnitude tester -> decorrelator -> magnitude tester if still needed
-	while (replaced_counter < (max_replacements - max_correlated_replacements)) {
-		float least_useful_idx = min_idx(feature_utility_trace);
-		std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
-		replace_features_with_idx(least_useful_idx);
-		replaced_counter += 1;
-	}
+  if (use_generate_and_test){
+    while (replaced_counter < (max_replacements - max_correlated_replacements)) {
+      float least_useful_idx = min_idx(feature_utility_trace);
+      std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
+      replace_features_with_idx(least_useful_idx);
+      replaced_counter += 1;
+    }
+  }
 
 	for (int i = 0; i < intermediate_neurons.size(); i++) {
 		for (int j = i+1; j < intermediate_neurons.size(); j++) {
@@ -427,12 +429,14 @@ std::vector<std::pair<floatpair, std::string> > SingleLayerNetwork::replace_feat
 		}
 	}
 	std::cout << replaced_counter << std::endl;
-	while (replaced_counter < max_replacements) {
-		float least_useful_idx = min_idx(feature_utility_trace);
-		std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
-		replace_features_with_idx(least_useful_idx);
-		replaced_counter += 1;
-	}
+  if (use_generate_and_test){
+    while (replaced_counter < max_replacements) {
+      float least_useful_idx = min_idx(feature_utility_trace);
+      std::cout << "replacing: " << least_useful_idx << "\t util: " << feature_utility_trace[least_useful_idx] << "\t new: " << median(feature_utility_trace) << "\t non-corr replacement"<< std::endl;
+      replace_features_with_idx(least_useful_idx);
+      replaced_counter += 1;
+    }
+  }
 	return correlated_graphviz;
 }
 
