@@ -1,7 +1,7 @@
 trained_models/*
 
 .idea/
-results/
+results/figures/
 cmake-*/
 libtorch/
 pybind11/
