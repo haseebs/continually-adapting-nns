@@ -49,7 +49,7 @@ Firstly, make sure that your database is up and running. Place the `.my.cnf` fil
 #### Feature Decorrelation
 Run the experiments using: 
 
-`./GNTDecorrelation --config cfg/<config_file> --run ::: {0..<num_rums>}`
+`parallel ./GNTDecorrelation --config cfg/<config_file> --run ::: {0..<num_rums>}`
 #### Feature Testing
 Obtain some pretrained MNIST models using: 
 
@@ -57,6 +57,6 @@ Obtain some pretrained MNIST models using:
 
 Evaluate the pruners on these pretrained models using: 
 
-`./BinaryMNISTPruning --config cfg/<config_file> --run ::: {0..<num_runs>}`
+`parallel ./BinaryMNISTPruning --config cfg/<config_file> --run ::: {0..<num_runs>}`
 
 See `cfg/` for example of some config files.
