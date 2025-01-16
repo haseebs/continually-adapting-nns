@@ -1,7 +1,6 @@
 trained_models/*
 
 .idea/
-cfg/
 results/
 cmake-*/
 libtorch/
