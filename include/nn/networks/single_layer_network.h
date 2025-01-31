@@ -60,7 +60,7 @@ class SingleLayerNetwork {
 
   void replace_features(float perc_to_replace);
   void replace_features_randomly(float perc_to_replace);
-  std::vector<std::pair<floatpair,std::string>> replace_features_n2_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate);
+  std::vector<std::pair<floatpair,std::string>> replace_features_n2_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate, bool use_generate_and_test);
   std::vector<std::pair<floatpair,std::string>> replace_features_random_decorrelator_v3(float perc_to_replace, bool sum_features, float perc_to_decorrelate);
 
   SingleLayerNetwork(float step_size, int seed, int no_of_input_features, int no_of_intermediate_features, bool is_target_network);

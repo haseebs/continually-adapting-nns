@@ -1,0 +1,72 @@
+{
+  "experiment": {
+    "name": "03xx_random_decor",
+    "params": {
+      "seed": [
+        "0",
+        "1",
+        "2"
+      ],
+      "step_size": [
+        "0.01",
+        "0.001",
+        "0.0001"
+      ],
+      "n_inputs": [
+        "5"
+      ],
+      "n_distractors": [
+      	"0"
+      ],
+      "n_target_features": [
+        "100"
+      ],
+      "n_learner_features": [
+        "25"
+      ],
+      "replace_every": [
+        "20000"
+      ],
+      "n2_decorrelate": [
+      	"0"
+      ],
+      "random_decorrelate": [
+        "1"
+      ],
+      "random_thresh_decorrelate": [
+        "0"
+      ],
+      "random_replacement": [
+        "0"
+      ],
+      "min_estimation_period": [
+        "5000"
+      ],
+      "sum_features": [
+        "0"
+      ],
+      "age_restriction": [
+        "0"
+      ],
+      "replace_perc": [
+        "0.20"
+      ],
+      "decorrelate_perc": [
+        "0.1"
+      ],
+      "perc_of_total_pairs_to_estimate": [
+        "0.1"
+      ],
+      "steps": [
+        "5000001"
+      ],
+      "l2_lambda": [
+        "0"
+      ],
+      "l1_lambda": [
+        "0.0"
+      ]
+
+    }
+  }
+}

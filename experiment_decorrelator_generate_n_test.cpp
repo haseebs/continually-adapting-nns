@@ -73,14 +73,15 @@ int main(int argc, char *argv[]) {
 			if (my_experiment->get_int_param("n2_decorrelate"))
 				graphs = learning_network.replace_features_n2_decorrelator_v3(my_experiment->get_float_param("replace_perc"),
 				                                                              bool(my_experiment->get_int_param("sum_features")),
-				                                                              my_experiment->get_float_param("decorrelate_perc"));
+				                                                              my_experiment->get_float_param("decorrelate_perc"),
+                                                                      bool(my_experiment->get_int_param("use_generate_and_test")));
 			else if (my_experiment->get_int_param("random_decorrelate") || my_experiment->get_int_param("random_thresh_decorrelate"))
 				graphs = learning_network.replace_features_random_decorrelator_v3(my_experiment->get_float_param("replace_perc"),
 				                                                                  bool(my_experiment->get_int_param("sum_features")),
 				                                                                  my_experiment->get_float_param("decorrelate_perc"));
 			else if (my_experiment->get_int_param("random_replacement"))
 				learning_network.replace_features_randomly(my_experiment->get_float_param("replace_perc"));
-			else
+			else if (bool(my_experiment->get_int_param("use_generate_and_test")))
 				learning_network.replace_features(my_experiment->get_float_param("replace_perc"));
 
 			for (const auto &graph : graphs) {
@@ -113,8 +114,8 @@ int main(int argc, char *argv[]) {
 		float target = target_network.forward(input);
 		float error = target - pred;
 
-		running_error = 0.995 * running_error + 0.005 * (target - pred) * (target - pred);
 		learning_network.calculate_all_correlations();
+		running_error = 0.995 * running_error + 0.005 * (target - pred) * (target - pred);
 
 		if (my_experiment->get_int_param("random_decorrelate")) {
 			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param("age_restriction")) {
@@ -140,7 +141,10 @@ int main(int argc, char *argv[]) {
 		//learning_network.update_parameters_only_prediction(error,
         //                                                   my_experiment->get_float_param("l2_lambda"),
         //                                                   my_experiment->get_float_param("l1_lambda"));
-        learning_network.update_parameters_only_prediction_RMSProp(error);
+    if (my_experiment->get_int_param("freeze_weights"))
+      learning_network.update_parameters_only_prediction_RMSProp(error);
+    else
+      learning_network.update_parameters(error);
 
 		if (step%5000 == 1) {// || step%5000 == 4999){
 			std::vector<std::string> cur_error;

@@ -7,6 +7,7 @@
 #include <utility>
 #include "./dynamic_elem.h"
 #include "./message.h"
+#include <cstdint>
 
 class SyncedNeuron;
 
