@@ -7,13 +7,40 @@
 #include <algorithm>
 #include "include/nn/networks/single_layer_network.h"
 #include "include/nn/synced_neuron.h"
+#include "include/logger/logger.h"
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
+#include <mongocxx/uri.hpp>
+#include <mongocxx/exception/exception.hpp>
+#include "include/environments/atari_prediction_environment.h"
 
-
-int main(int argc, char *argv[]) {
-
-	Experiment *my_experiment = new ExperimentJSON(argc, argv);
+int main(int argc, char* argv[])
+{
+	Experiment* my_experiment = new ExperimentJSON(argc, argv);
 	if (my_experiment->get_int_param("sum_features") && !my_experiment->get_int_param("n2_decorrelate"))
 		exit(1);
+
+	Logger* logger;
+	logger = new MongoDBLogger("mongodb://admin:nBcCmPnust@34.95.16.129:27017/", "Test1",
+	                           "Test2");
+
+
+	nlohmann::json j;
+	for (auto const& x : my_experiment->args_for_run)
+	{
+		j[x.first] = x.second;
+	}
+
+	AtariPredictionEnvironment env("Pong", 0.99, "pretrained");
+
+	for(int i = 0 ; i < 10000; i++)
+	{
+		env.step();
+		if(env.get_reward() != 0)
+			std::cout << env.get_reward() << std::endl;
+
+	}
+	return 0;
 	//
 	// Metric error_metric = Metric(my_experiment->database_name, "error_table",
 	//                              std::vector < std::string > {"run", "step", "error", "n_correlated", "n_mature"},
@@ -30,14 +57,24 @@ int main(int argc, char *argv[]) {
 	//                                std::vector < std::string > {"int", "real", "int", "int"},
 	//                                std::vector < std::string > {"run"});
 
-	std::vector<std::string> weight_col_names{ "run", "step"};
-	std::vector<std::string> weight_col_types{ "int", "int"};
-	for (int i = 0; i < my_experiment->get_int_param("n_learner_features"); i++) {
+	std::vector<std::pair<int, float>> error_data;
+	std::vector<std::pair<int, float>> n_correlated_data;
+	std::vector<std::pair<int, float>> n_mature_data;
+
+	std::vector<std::pair<int, std::pair<int, float>>> real_correlation;
+	std::vector<std::pair<int, std::pair<int, float>>> estimated_correlation;
+
+
+	std::vector<std::string> weight_col_names{"run", "step"};
+	std::vector<std::string> weight_col_types{"int", "int"};
+	for (int i = 0; i < my_experiment->get_int_param("n_learner_features"); i++)
+	{
 		weight_col_names.push_back("f" + std::to_string(i));
 		weight_col_types.push_back("real");
 	}
 
-	for (int i = 0; i < my_experiment->get_int_param("n_learner_features"); i++) {
+	for (int i = 0; i < my_experiment->get_int_param("n_learner_features"); i++)
+	{
 		weight_col_names.push_back("age" + std::to_string(i));
 		weight_col_types.push_back("int");
 	}
@@ -65,46 +102,47 @@ int main(int argc, char *argv[]) {
 	auto input_sampler = uniform_random(my_experiment->get_int_param("seed"), -10, 10);
 
 	float running_error = 0.05;
-	std::vector<std::pair<std::pair<float, float>, std::string> > graphs;
+	std::vector<std::pair<std::pair<float, float>, std::string>> graphs;
 	int counter = 0;
 
-	for (int step = 0; step < my_experiment->get_int_param("steps"); step++) {
-		if (step % my_experiment->get_int_param("replace_every") == 1) {
+	for (int step = 0; step < my_experiment->get_int_param("steps"); step++)
+	{
+		if (step % my_experiment->get_int_param("replace_every") == 1)
+		{
 			if (my_experiment->get_int_param("n2_decorrelate"))
-				graphs = learning_network.replace_features_n2_decorrelator_v3(my_experiment->get_float_param("replace_perc"),
-				                                                              bool(my_experiment->get_int_param("sum_features")),
-				                                                              my_experiment->get_float_param("decorrelate_perc"),
-                                                                      bool(my_experiment->get_int_param("use_generate_and_test")));
-			else if (my_experiment->get_int_param("random_decorrelate") || my_experiment->get_int_param("random_thresh_decorrelate"))
-				graphs = learning_network.replace_features_random_decorrelator_v3(my_experiment->get_float_param("replace_perc"),
-				                                                                  bool(my_experiment->get_int_param("sum_features")),
-				                                                                  my_experiment->get_float_param("decorrelate_perc"));
+				graphs = learning_network.replace_features_n2_decorrelator_v3(
+					my_experiment->get_float_param("replace_perc"),
+					bool(my_experiment->get_int_param("sum_features")),
+					my_experiment->get_float_param("decorrelate_perc"),
+					bool(my_experiment->get_int_param("use_generate_and_test")));
+			else if (my_experiment->get_int_param("random_decorrelate") || my_experiment->get_int_param(
+				"random_thresh_decorrelate"))
+				graphs = learning_network.replace_features_random_decorrelator_v3(
+					my_experiment->get_float_param("replace_perc"),
+					bool(my_experiment->get_int_param("sum_features")),
+					my_experiment->get_float_param("decorrelate_perc"));
 			else if (my_experiment->get_int_param("random_replacement"))
 				learning_network.replace_features_randomly(my_experiment->get_float_param("replace_perc"));
 			else if (bool(my_experiment->get_int_param("use_generate_and_test")))
 				learning_network.replace_features(my_experiment->get_float_param("replace_perc"));
 
-			for (const auto &graph : graphs) {
-				std::vector<std::string> cur_graphs;
-				cur_graphs.push_back(std::to_string(my_experiment->get_int_param("run")));
-				cur_graphs.push_back(std::to_string(step));
-				cur_graphs.push_back(std::to_string(counter++));
-				cur_graphs.push_back(std::to_string(graph.first.first));
-				cur_graphs.push_back(std::to_string(graph.first.second));
-				//cur_graphs.push_back(graph.second);
-				cur_graphs.push_back("NA");
-				// correlation_metric.record_value(cur_graphs);
+			for (const auto& graph : graphs)
+			{
+				real_correlation.push_back(std::make_pair(step, std::make_pair(counter, graph.first.first)));
+				estimated_correlation.push_back(std::make_pair(step, std::make_pair(counter, graph.first.second)));
+				counter++;
 			}
 		}
 
-		if ( false && step % 1000 == 1 ) {
+		if (false && step % 1000 == 1)
+		{
 			std::vector<std::string> cur_weights;
 			cur_weights.push_back(std::to_string(my_experiment->get_int_param("run")));
 			cur_weights.push_back(std::to_string(step));
 			auto current_weights = learning_network.get_prediction_weight_statistics();
-			for (const auto &weight : current_weights)
+			for (const auto& weight : current_weights)
 				cur_weights.push_back(std::to_string(weight.first));
-			for (const auto &weight : current_weights)
+			for (const auto& weight : current_weights)
 				cur_weights.push_back(std::to_string(weight.second));
 			// weight_metric.record_value(cur_weights);
 		}
@@ -117,21 +155,33 @@ int main(int argc, char *argv[]) {
 		learning_network.calculate_all_correlations();
 		running_error = 0.995 * running_error + 0.005 * (target - pred) * (target - pred);
 
-		if (my_experiment->get_int_param("random_decorrelate")) {
-			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param("age_restriction")) {
-				if (step % my_experiment->get_int_param("min_estimation_period") == 1) //update the random corr selections
-					learning_network.update_random_correlation_selections(bool(my_experiment->get_int_param("age_restriction")),
-					                                                      my_experiment->get_float_param("perc_of_total_pairs_to_estimate"));
-				learning_network.calculate_random_correlations(my_experiment->get_int_param("min_estimation_period")); // update the random corr values
+		if (my_experiment->get_int_param("random_decorrelate"))
+		{
+			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param(
+				"age_restriction"))
+			{
+				if (step % my_experiment->get_int_param("min_estimation_period") == 1)
+					//update the random corr selections
+					learning_network.update_random_correlation_selections(
+						bool(my_experiment->get_int_param("age_restriction")),
+						my_experiment->get_float_param("perc_of_total_pairs_to_estimate"));
+				learning_network.calculate_random_correlations(my_experiment->get_int_param("min_estimation_period"));
+				// update the random corr values
 			}
 		}
 
 		// same random decorrelator as above but sampling based on correlations based on a single sample
-		if (my_experiment->get_int_param("random_thresh_decorrelate")) {
-			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param("age_restriction")) {
-				if (step % my_experiment->get_int_param("min_estimation_period") == 1) //update the random corr selections
-					learning_network.update_random_correlation_selections_using_thresh(bool(my_experiment->get_int_param("age_restriction")));
-				learning_network.calculate_random_correlations(my_experiment->get_int_param("min_estimation_period")); // update the random corr values
+		if (my_experiment->get_int_param("random_thresh_decorrelate"))
+		{
+			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param(
+				"age_restriction"))
+			{
+				if (step % my_experiment->get_int_param("min_estimation_period") == 1)
+					//update the random corr selections
+					learning_network.update_random_correlation_selections_using_thresh(
+						bool(my_experiment->get_int_param("age_restriction")));
+				learning_network.calculate_random_correlations(my_experiment->get_int_param("min_estimation_period"));
+				// update the random corr values
 			}
 		}
 
@@ -139,20 +189,20 @@ int main(int argc, char *argv[]) {
 		//learning_network.update_parameters(error);
 		//learning_network.update_parameters_only_prediction(error);
 		//learning_network.update_parameters_only_prediction(error,
-        //                                                   my_experiment->get_float_param("l2_lambda"),
-        //                                                   my_experiment->get_float_param("l1_lambda"));
-    if (my_experiment->get_int_param("freeze_weights"))
-      learning_network.update_parameters_only_prediction_RMSProp(error);
-    else
-      learning_network.update_parameters(error);
+		//                                                   my_experiment->get_float_param("l2_lambda"),
+		//                                                   my_experiment->get_float_param("l1_lambda"));
+		if (my_experiment->get_int_param("freeze_weights"))
+			learning_network.update_parameters_only_prediction_RMSProp(error);
+		else
+			learning_network.update_parameters(error);
 
-		if (step%5000 == 1) {// || step%5000 == 4999){
-			std::vector<std::string> cur_error;
-			cur_error.push_back(std::to_string(my_experiment->get_int_param("run")));
-			cur_error.push_back(std::to_string(step));
-			cur_error.push_back(std::to_string(running_error));
-			cur_error.push_back(std::to_string(learning_network.count_highly_correlated_features()));
-			cur_error.push_back(std::to_string(learning_network.count_mature_features()));
+		if (step % 5000 == 1)
+		{
+			// || step%5000 == 4999){
+			error_data.push_back(std::make_pair(step, running_error));
+			n_correlated_data.push_back(std::make_pair(step, learning_network.count_highly_correlated_features()));
+			n_mature_data.push_back(std::make_pair(step, learning_network.count_mature_features()));
+
 			// error_metric.record_value(cur_error);
 			std::cout << "\nstep:" << step << std::endl;
 			//print_vector(input);
@@ -163,24 +213,28 @@ int main(int argc, char *argv[]) {
 			std::cout << "running err: " << running_error << std::endl;
 			//learning_network.print_all_correlations();
 			//learning_network.print_all_statistics();
-			std::cout << "count unremovable correlated features: " << learning_network.count_highly_correlated_features() << std::endl;
+			std::cout << "count unremovable correlated features: " << learning_network.
+				count_highly_correlated_features() << std::endl;
 			std::cout << "count mature features" << learning_network.count_mature_features() << std::endl;
 		}
 		learning_network.zero_grad();
-		if (step % 100000 == 1) {
+		if (step % 100000 == 1)
+		{
 			// error_metric.commit_values();
 			// correlation_metric.commit_values();
 			// weight_metric.commit_values();
 		}
 	}
-	std::vector<std::string> cur_error;
-	cur_error.push_back(std::to_string(my_experiment->get_int_param("run")));
-	cur_error.push_back(std::to_string(running_error));
-	cur_error.push_back(std::to_string(learning_network.count_highly_correlated_features()));
-	cur_error.push_back(std::to_string(learning_network.count_mature_features()));
-	// summary_metric.record_value(cur_error);
-	// summary_metric.commit_values();
-	// error_metric.commit_values();
-	// correlation_metric.commit_values();
-	// weight_metric.commit_values();
+	std::cout << "Experiment finished" << std::endl;
+
+	j["error_data"] = error_data;
+	j["n_correlated_data"] = n_correlated_data;
+	j["n_mature_data"] = n_mature_data;
+	j["Final error"] = running_error;
+	j["Final n_correlated"] = learning_network.count_highly_correlated_features();
+	j["Final n_mature"] = learning_network.count_mature_features();
+	j["real_correlation"] = real_correlation;
+	j["estimated_correlation"] = estimated_correlation;
+	std::cout << j.dump() << std::endl;
+	logger->log(j.dump());
 }

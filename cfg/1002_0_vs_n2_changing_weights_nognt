@@ -2,6 +2,9 @@
   "experiment": {
     "name": "1002_0_vs_n2_changing_weights_nognt",
     "params": {
+      "database": [
+        "rlc"
+      ],
       "seed": [
         "0",
         "1",

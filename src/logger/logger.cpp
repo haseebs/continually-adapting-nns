@@ -5,9 +5,10 @@
 #include "../../include/logger/logger.h"
 
 
-//#include <bsoncxx/json.hpp>
-//#include <mongocxx/client.hpp>
-//#include <mongocxx/uri.hpp>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
+#include <mongocxx/uri.hpp>
+#include <mongocxx/exception/exception.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -35,10 +36,31 @@ MongoDBLogger::MongoDBLogger(std::string uri, std::string collection_name, std::
 
 void MongoDBLogger::log(std::string json)
 {
-//    mongocxx::client client{mongocxx::uri{this->uri}};
-//    mongocxx::database db = client[this->db_name];
-//    mongocxx::collection collection = db[this->collection_name];
-//    collection.insert_one(bsoncxx::from_json(json));
-    std::cout << "MongoDB commented out for now" << std::endl;
+    std::cout << "Logging to MongoDB" << std::endl;
+    std::cout << "URI: " << this->uri << std::endl;
+    try {
+        auto uri = mongocxx::uri{this->uri};
+        std::cout << "URI created" << std::endl;
+        mongocxx::client client{uri};
+        std::cout << "URI: " << this->uri << std::endl;
+        mongocxx::database db = client[this->db_name];
+        std::cout << "Database name: " << this->db_name << std::endl;
+        mongocxx::collection collection = db[this->collection_name];
+        std::cout << "Collection name: " << this->collection_name << std::endl;
+        collection.insert_one(bsoncxx::from_json(json));
+    } catch (const mongocxx::exception& e) {
+        std::cerr << "MongoDB connection error: " << e.what() << std::endl;
+        throw; // Re-throw to allow caller to handle
+    }
+    catch (const std::exception& e) {
+        std::cerr << "General error occurred: " << e.what() << std::endl;
+        throw; // Re-throw to allow caller to handle
+    }
+    catch (...) {
+        std::cerr << "Unknown error occurred" << std::endl;
+        throw; // Re-throw to allow caller to handle
+    }
+
+    // std::cout << "MongoDB commented out for now" << std::endl;
 }
 
