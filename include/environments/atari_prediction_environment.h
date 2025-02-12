@@ -74,7 +74,6 @@ public:
 
     float get_gamma();
 
-    float TakeAction(int action);
 
     bool get_done();
 

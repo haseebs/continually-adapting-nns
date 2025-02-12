@@ -13,7 +13,12 @@
 #include <mongocxx/uri.hpp>
 #include <mongocxx/exception/exception.hpp>
 #include "include/environments/atari_prediction_environment.h"
+#include <unordered_map>
 
+std::vector<float> std_of_ram_data(128, 0);
+std::vector<float> mean_of_ram_data(128, 0);
+
+std::unordered_map<int, int> feature_indices;
 int main(int argc, char* argv[])
 {
 	Experiment* my_experiment = new ExperimentJSON(argc, argv);
@@ -21,7 +26,7 @@ int main(int argc, char* argv[])
 		exit(1);
 
 	Logger* logger;
-	logger = new MongoDBLogger("mongodb://admin:****@34.95.16.129:27017/", "Test1",
+	logger = new MongoDBLogger("mongodb://admin:rlc20251234@34.95.16.129:27017/", "Test1",
 	                           "Test2");
 
 
@@ -32,30 +37,6 @@ int main(int argc, char* argv[])
 	}
 
 	AtariPredictionEnvironment env("Pong", 0.99, "pretrained");
-
-	for(int i = 0 ; i < 10000; i++)
-	{
-		env.step();
-		if(env.get_reward() != 0)
-			std::cout << env.get_reward() << std::endl;
-
-	}
-	return 0;
-	//
-	// Metric error_metric = Metric(my_experiment->database_name, "error_table",
-	//                              std::vector < std::string > {"run", "step", "error", "n_correlated", "n_mature"},
-	//                              std::vector < std::string > {"int", "int", "real", "int", "int"},
-	//                              std::vector < std::string > {"run", "step"});
-	//
-	// Metric correlation_metric = Metric(my_experiment->database_name, "correlated_graphs_table",
-	//                                    std::vector < std::string > {"run", "step", "id",  "real_correlation", "estimated_correlation", "graph"},
-	//                                    std::vector < std::string > {"int", "int", "int", "real", "real", "varchar(10000)"},
-	//                                    std::vector < std::string > {"run", "step", "id"});
-	//
-	// Metric summary_metric = Metric(my_experiment->database_name, "summary_table",
-	//                                std::vector < std::string > {"run", "final_error", "final_n_correlated", "final_n_mature"},
-	//                                std::vector < std::string > {"int", "real", "int", "int"},
-	//                                std::vector < std::string > {"run"});
 
 	std::vector<std::pair<int, float>> error_data;
 	std::vector<std::pair<int, float>> n_correlated_data;
@@ -134,23 +115,40 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		if (false && step % 1000 == 1)
-		{
-			std::vector<std::string> cur_weights;
-			cur_weights.push_back(std::to_string(my_experiment->get_int_param("run")));
-			cur_weights.push_back(std::to_string(step));
-			auto current_weights = learning_network.get_prediction_weight_statistics();
-			for (const auto& weight : current_weights)
-				cur_weights.push_back(std::to_string(weight.first));
-			for (const auto& weight : current_weights)
-				cur_weights.push_back(std::to_string(weight.second));
-			// weight_metric.record_value(cur_weights);
-		}
 
 		auto input = input_sampler.get_random_vector(total_inputs);
+		std::vector<int> active_indices;
+		std::vector<float> active_indices_values;
+		env.step();
+		auto byte_data =  env.my_env->getRAM().array();
+		std::vector<float> normalized_byte_data{128, 0};
+		for(int i = 0; i < 128; i++)
+		{
+			normalized_byte_data[i] = float(int(byte_data[i]))/256.0f;
+		}
+		std::cout << "Step " << step << std::endl;
+		for(int i = 0; i < 128; i++)
+		{
+			mean_of_ram_data[i] = 0.999f * mean_of_ram_data[i] + 0.001f * normalized_byte_data[i];
+			std_of_ram_data[i] = 0.999f* std_of_ram_data[i] + 0.001f * (normalized_byte_data[i] - mean_of_ram_data[i]) * (normalized_byte_data[i] - mean_of_ram_data[i]);
+			if(std_of_ram_data[i] > 0.01)
+			{
+				if(feature_indices.find(i) == feature_indices.end())
+				{
+					feature_indices[i] = feature_indices.size();
+				}
+				active_indices.push_back(feature_indices[i]);
+				std::cout << i << "\t" <<  std_of_ram_data[i] << std::endl;
+				active_indices_values.push_back((normalized_byte_data[i] - mean_of_ram_data[i])/std_of_ram_data[i]);
+			}
+		}
+		std::cout << "Total features = " << feature_indices.size() << std::endl;
+		// std::vector<float> input(5, 0);
+
 		float pred = learning_network.forward(input);
 		float target = target_network.forward(input);
 		float error = target - pred;
+
 
 		learning_network.calculate_all_correlations();
 		running_error = 0.995 * running_error + 0.005 * (target - pred) * (target - pred);
@@ -186,7 +184,7 @@ int main(int argc, char* argv[])
 		}
 
 		learning_network.backward();
-		//learning_network.update_parameters(error);
+		learning_network.update_parameters(error);
 		//learning_network.update_parameters_only_prediction(error);
 		//learning_network.update_parameters_only_prediction(error,
 		//                                                   my_experiment->get_float_param("l2_lambda"),

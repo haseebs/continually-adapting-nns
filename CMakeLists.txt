@@ -19,6 +19,8 @@ set(CMAKE_BUILD_TYPE Debug)
 # endif(WORKFLOW_COMPILER)
 
 find_package(PkgConfig REQUIRED)
+# Find pthreads
+find_package(Threads REQUIRED)
 pkg_check_modules(mongocxx REQUIRED libmongocxx)
 
 link_directories(${mongocxx_LIBRARY_DIRS})
@@ -30,6 +32,6 @@ add_executable(GNTDecorrelation
 
 
 add_subdirectory(src)
-target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari)
+target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads)
 
 project(FlexibleNN LANGUAGES CXX)

@@ -95,6 +95,7 @@ std::vector<unsigned int> AtariPredictionEnvironment::step()
     time++;
     if (actions[time] == 'R')
     {
+        std::cout << "Resetting\n";
         reward = 0;
         my_env->reset_game();
         to_reset = true;
@@ -107,114 +108,6 @@ std::vector<unsigned int> AtariPredictionEnvironment::step()
     return this->get_state();
 }
 
-void AtariPredictionEnvironment::step_loop()
-{
-    while (alive)
-    {
-        if (to_step)
-        {
-            if (policy_type == "pretrained")
-            {
-                // std::cout << "pretrained policy\n";
-                step();
-            }
-            else if (policy_type == "random")
-            {
-                auto actions = my_env->getMinimalActionSet();
-                std::uniform_int_distribution<int> dist(0, actions.size() - 1);
-                current_action = dist(generator);
-                TakeAction(current_action);
-            }
-            else if(policy_type == "custom")
-            {
-                float cumulative_reward = 0;
-
-                TakeAction(current_action);
-//                action_queue.push(current_action);
-//
-//                for(int i = 0; i < 4; i++){
-//                    TakeAction(current_action);
-//                    cumulative_reward += reward;
-//                }
-//                reward = cumulative_reward;
-            }
-            my_env->getScreenRGB(gray_features);
-            std::memcpy(pinned_memory, gray_features.data(), gray_features.size());
-            auto r = my_env->getRAM();
-            auto* ptr = r.array();
-            float reward = this->get_reward();
-            float gamma = this->get_gamma();
-            memcpy(ram_memory, ptr, 128);
-            std::memcpy(ram_memory + 128, &reward, sizeof(float));
-            std::memcpy(ram_memory + 128 + sizeof(float), &gamma, sizeof(float));
-
-
-
-            std::memcpy(pinned_memory + gray_features.size(), &reward, sizeof(float));
-            std::memcpy(pinned_memory + gray_features.size() + sizeof(float), &gamma, sizeof(float));
-            to_step = false;
-        }
-        else
-        {
-            // std::cout << "Skipping step\n";
-        }
-    }
-}
-
-void AtariPredictionEnvironment::async_step()
-{
-    step_thread = std::thread(&AtariPredictionEnvironment::step_loop, this);
-}
-
-void AtariPredictionEnvironment::wait() { step_thread.join(); }
-
-float AtariPredictionEnvironment::TakeAction(int action)
-{
-    this->last_action = current_action;
-    current_action = action;
-    time++;
-    my_env->getMinimalActionSet();
-    // print Minimal Action Set
-//     std::cout << "Minimal Action Set: ";
-//     for (int i = 0; i < my_env->getMinimalActionSet().size(); i++)
-//     {
-//         std::cout << my_env->getMinimalActionSet()[i] << " ";
-//     }
-//     std::cout << std::endl;
-    reward = my_env->act(my_env->getMinimalActionSet()[action]);
-    if (my_env->game_over())
-    {
-        my_env->reset_game();
-    }
-    if (reward > 0.1)
-    {
-        return 1;
-    }
-    else if (reward < -0.1)
-    {
-        return -1;
-    }
-    return 0;
-}
-
-
-std::vector<float> AtariPredictionEnvironment::FastStep()
-{
-    to_reset = false;
-    time++;
-
-    if (actions[time] == 'R')
-    {
-        my_env->reset_game();
-        to_reset = true;
-    }
-    else
-    {
-        reward = my_env->act(action_set[int(actions[time]) - 97]);
-    }
-
-    return {};
-}
 
 float AtariPredictionEnvironment::get_target() { return real_target[time]; }
 
