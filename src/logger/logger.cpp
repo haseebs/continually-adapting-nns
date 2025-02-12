@@ -36,17 +36,11 @@ MongoDBLogger::MongoDBLogger(std::string uri, std::string collection_name, std::
 
 void MongoDBLogger::log(std::string json)
 {
-    std::cout << "Logging to MongoDB" << std::endl;
-    std::cout << "URI: " << this->uri << std::endl;
     try {
         auto uri = mongocxx::uri{this->uri};
-        std::cout << "URI created" << std::endl;
         mongocxx::client client{uri};
-        std::cout << "URI: " << this->uri << std::endl;
         mongocxx::database db = client[this->db_name];
-        std::cout << "Database name: " << this->db_name << std::endl;
         mongocxx::collection collection = db[this->collection_name];
-        std::cout << "Collection name: " << this->collection_name << std::endl;
         collection.insert_one(bsoncxx::from_json(json));
     } catch (const mongocxx::exception& e) {
         std::cerr << "MongoDB connection error: " << e.what() << std::endl;

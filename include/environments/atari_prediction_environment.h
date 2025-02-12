@@ -43,8 +43,6 @@ public:
     int time;
     int total;
     std::atomic<bool> to_step;
-    unsigned char* pinned_memory;
-    unsigned char* ram_memory;
     float gamma;
     std::queue<int> action_queue;
 
@@ -61,14 +59,6 @@ public:
     std::vector<unsigned int> get_state();
 
     std::vector<unsigned int> step();
-
-    void step_loop();
-
-    void async_step();
-
-    void wait();
-
-    std::vector<float> FastStep();
 
     float get_target();
 

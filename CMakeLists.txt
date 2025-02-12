@@ -30,8 +30,13 @@ add_executable(GNTDecorrelation
         src/utils.cpp
         experiment_decorrelator_generate_n_test.cpp)
 
+add_executable(AtariExp
+        src/utils.cpp
+        experiment_atari.cpp)
+
 
 add_subdirectory(src)
-target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads)
+target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators)
+target_link_libraries(AtariExp PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators)
 
 project(FlexibleNN LANGUAGES CXX)
