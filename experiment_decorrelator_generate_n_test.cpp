@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 		exit(1);
 
 	Logger* logger;
-	logger = new MongoDBLogger("mongodb://admin:rlc20251234@34.95.16.129:27017/", "Test1",
+	logger = new MongoDBLogger("mongodb://admin:***@34.95.16.129:27017/", "Test1",
 	                           "Test2");
 
 
