@@ -213,21 +213,6 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		// same random decorrelator as above but sampling based on correlations based on a single sample
-		if (my_experiment->get_int_param("random_thresh_decorrelate"))
-		{
-			if ((my_experiment->get_int_param("age_restriction") && step > 25000) || !my_experiment->get_int_param(
-				"age_restriction"))
-			{
-				if (step % my_experiment->get_int_param("min_estimation_period") == 1)
-					//update the random corr selections
-					learning_network.update_random_correlation_selections_using_thresh(
-						bool(my_experiment->get_int_param("age_restriction")));
-				learning_network.calculate_random_correlations(my_experiment->get_int_param("min_estimation_period"));
-				// update the random corr values
-			}
-		}
-
 		float delta = env.get_reward() + my_experiment->get_float_param("gamma")*learning_network.predictions - learning_network.v_old;
 		if(delta != 0)
 		{

@@ -8,19 +8,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Enable debug build
 set(CMAKE_BUILD_TYPE Debug)
 
-
-# message( "Found environment variable SLURM_TMPDIR=$ENV{SLURM_TMPDIR}" )
-
-# option(WORKFLOW_COMPILER "Flags used when compiling using github workflow" OFF)
-# if(WORKFLOW_COMPILER)
-#     set(CMAKE_CXX_FLAGS "-O3 -ltbb -lpthread -ldl -lm -I/usr/include/mariadb")
-# else()
-#     set(CMAKE_CXX_FLAGS "-O3 -ltbb -lpthread")
-# endif(WORKFLOW_COMPILER)
+add_compile_options(-include cstdint)
 
 find_package(PkgConfig REQUIRED)
 # Find pthreads
 find_package(Threads REQUIRED)
+find_package(TBB REQUIRED)
+
 pkg_check_modules(mongocxx REQUIRED libmongocxx)
 
 link_directories(${mongocxx_LIBRARY_DIRS})
@@ -36,7 +30,7 @@ add_executable(AtariExp
 
 
 add_subdirectory(src)
-target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators)
-target_link_libraries(AtariExp PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators)
+target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
+target_link_libraries(AtariExp PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
 
 project(FlexibleNN LANGUAGES CXX)
