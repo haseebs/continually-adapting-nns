@@ -28,9 +28,13 @@ add_executable(AtariExp
         src/utils.cpp
         experiment_atari.cpp)
 
+add_executable(Synthetic
+        src/utils.cpp
+        experiment_synthetic.cpp)
 
 add_subdirectory(src)
 target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
 target_link_libraries(AtariExp PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
+target_link_libraries(Synthetic PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
 
 project(FlexibleNN LANGUAGES CXX)

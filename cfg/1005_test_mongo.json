@@ -23,7 +23,7 @@
       "replace_perc": ["0.20"],
       "decorrelate_perc": ["0.1"],
       "perc_of_total_pairs_to_estimate": ["0.1"],
-      "steps": ["2000001"],
+      "steps": ["20001"],
       "l2_lambda": ["0"],
       "l1_lambda": ["0.0"],
       "freeze_weights": ["0"],
