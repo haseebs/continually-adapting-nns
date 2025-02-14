@@ -780,7 +780,7 @@ void SingleLayerNetwork::update_parameters(float error)
 	for (int index = 0; index < intermediate_neurons.size(); index++)
 	{
 		float incoming_gradient = error * (prediction_weights[index] / sqrt(feature_std[index])) * intermediate_neurons[
-			index]->backward(intermediate_neurons[index]->value);
+			index]->backward(intermediate_neurons[index]->value) * intermediate_neurons[index]->value;
 		for (const auto& synapse : intermediate_neurons[index]->incoming_synapses)
 			synapse->weight += step_size * synapse->input_neuron->value * incoming_gradient;
 	}
