@@ -384,7 +384,7 @@ std::vector<std::pair<floatpair, std::string>> SingleLayerNetwork::replace_featu
 			floatpair corr = std::make_pair(feature_correlations[id_pair], random_feature_correlations[id_pair]);
 			//correlated_graphviz.push_back(std::make_pair(corr, get_graph(id_pair.first, id_pair.second))); //NOTE: this graph contains actual (not random) correlation est
 			correlated_graphviz.push_back(std::make_pair(corr, "NA"));
-			if (feature_utility_trace[i] <= feature_utility_trace[j])
+			if (prediction_weights[i] <= prediction_weights[j])
 			{
 				if (sum_features)
 					prediction_weights[j] += prediction_weights[i]; //TODO assume single outgoing w
@@ -473,7 +473,7 @@ std::vector<std::pair<floatpair, std::string>> SingleLayerNetwork::replace_featu
 			floatpair corr = std::make_pair(feature_correlations[id_pair], feature_correlations[id_pair]);
 			//correlated_graphviz.push_back(std::make_pair(corr, get_graph(id_pair.first, id_pair.second)));
 			correlated_graphviz.push_back(std::make_pair(corr, "NA"));
-			if (feature_utility_trace[i] <= feature_utility_trace[j])
+			if (prediction_weights[i] <= prediction_weights[j])
 			{
 				if (sum_features)
 					prediction_weights[j] += prediction_weights[i]; //TODO assume single outgoing w
