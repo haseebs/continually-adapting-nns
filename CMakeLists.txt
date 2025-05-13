@@ -30,7 +30,7 @@ add_executable(AtariExp
 
 add_executable(Synthetic
         src/utils.cpp
-        experiment_synthetic.cpp)
+        experiment_synthetic_nonstationary.cpp)
 
 add_subdirectory(src)
 target_link_libraries(GNTDecorrelation PUBLIC NN Exp Logger ${mongocxx_LIBRARIES} Atari Threads::Threads Evaluators TBB::tbb)
