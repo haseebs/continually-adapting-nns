@@ -31,6 +31,7 @@ public:
     float bias;
     float bias_gradients;
     float std_cap;
+		bool is_target_network;
 
     float v_old;
 

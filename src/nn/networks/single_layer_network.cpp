@@ -21,6 +21,7 @@ SingleLayerNetwork::SingleLayerNetwork(float step_size,
 	this->mt.seed(seed);
 	this->second_mt.seed(seed + 9999);
 	this->third_mt.seed(seed + 99999);
+	this->is_target_network = is_target_network;
 	std::uniform_real_distribution<float> weight_sampler(-1, 1);
 	std::uniform_real_distribution<float> prob_sampler(0, 1);
 	std::uniform_int_distribution<int> index_sampler(0, no_of_input_features - 1);
@@ -564,32 +565,47 @@ float SingleLayerNetwork::forward(std::vector<float> inputs)
 	for (auto& n : this->intermediate_neurons)
 		n->fire(0);
 
-	for (int counter = 0; counter < intermediate_neurons.size(); counter++)
-	{
-		feature_mean[counter] = feature_mean[counter] * 0.9999 + 0.0001 * intermediate_neurons[counter]->value;
-		if (std::isnan(feature_mean[counter]))
+	if (!this->is_target_network){
+		for (int counter = 0; counter < intermediate_neurons.size(); counter++)
 		{
-			std::cout << "feature value = " << intermediate_neurons[counter]->value << std::endl;
-			std::cout << "Exitting in single_layer_network.cpp" << std::endl;
-			exit(1);
+			feature_mean[counter] = feature_mean[counter] * 0.9999 + 0.0001 * intermediate_neurons[counter]->value;
+			if (std::isnan(feature_mean[counter]))
+			{
+				std::cout << "feature value = " << intermediate_neurons[counter]->value << std::endl;
+				std::cout << "Exitting in single_layer_network.cpp" << std::endl;
+				exit(1);
+			}
+			float temp = (feature_mean[counter] - intermediate_neurons[counter]->value);
+			feature_std[counter] = feature_std[counter] * 0.9999 + 0.0001 * temp * temp;
+			if (feature_std[counter] < this->std_cap)
+				feature_std[counter] = this->std_cap;
 		}
-		float temp = (feature_mean[counter] - intermediate_neurons[counter]->value);
-		feature_std[counter] = feature_std[counter] * 0.9999 + 0.0001 * temp * temp;
-		if (feature_std[counter] < this->std_cap)
-			feature_std[counter] = this->std_cap;
-	}
 
-	this->v_old = this->predictions;
-	predictions = 0;
-	for (int i = 0; i < prediction_weights.size(); i++)
-	{
-		float feature_output = prediction_weights[i] * (this->intermediate_neurons[i]->value - feature_mean[i]) / sqrt(
-			feature_std[i]);
-		feature_utility_trace[i] = feature_utility_trace[i] * 0.9999 + 0.0001 * fabs(feature_output);
-		predictions += feature_output;
+		this->v_old = this->predictions;
+		predictions = 0;
+		for (int i = 0; i < prediction_weights.size(); i++)
+		{
+			float feature_output = prediction_weights[i] * (this->intermediate_neurons[i]->value - feature_mean[i]) / sqrt(
+				feature_std[i]);
+			feature_utility_trace[i] = feature_utility_trace[i] * 0.9999 + 0.0001 * fabs(feature_output);
+			predictions += feature_output;
+		}
+		predictions += bias;
+		return predictions;
 	}
-	predictions += bias;
-	return predictions;
+	// when it is a target network, no need to normalize the features
+	else {
+		this->v_old = this->predictions;
+		predictions = 0;
+		for (int i = 0; i < prediction_weights.size(); i++)
+		{
+			float feature_output = prediction_weights[i] * this->intermediate_neurons[i]->value;
+			feature_utility_trace[i] = feature_utility_trace[i] * 0.9999 + 0.0001 * fabs(feature_output);
+			predictions += feature_output;
+		}
+		predictions += bias;
+		return predictions;
+	}
 }
 
 
