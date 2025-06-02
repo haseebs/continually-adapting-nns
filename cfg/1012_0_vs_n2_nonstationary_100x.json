@@ -3,7 +3,7 @@
     "name": "1010_0_v_n2_nonstationary",
     "params": {
       "database": ["decorrelator"],
-      "collection": ["1011_0_v_n2_nonstationary_longer"],
+      "collection": ["1013_0_v_n2_nonstationary_100x_random"],
       "seed": [
         "0",
         "1",
@@ -30,8 +30,7 @@
         "20000"
       ],
       "n2_decorrelate": [
-      	"0",
-        "1"
+      	"0"
       ],
       "random_decorrelate": [
         "0"
@@ -40,7 +39,7 @@
         "0"
       ],
       "random_replacement": [
-        "0"
+        "1"
       ],
       "min_estimation_period": [
         "5000"
@@ -61,7 +60,7 @@
         "0.1"
       ],
       "steps": [
-        "10000001"
+        "200000001"
       ],
       "l2_lambda": [
         "0"
@@ -76,7 +75,6 @@
         "0"
       ],
       "change_target_steps": [
-        "200000",
 				"1000000"
       ]
     }

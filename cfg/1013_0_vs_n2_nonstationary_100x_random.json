@@ -3,7 +3,7 @@
     "name": "1010_0_v_n2_nonstationary",
     "params": {
       "database": ["decorrelator"],
-      "collection": ["1011_0_v_n2_nonstationary_longer"],
+      "collection": ["1012_0_v_n2_nonstationary_100x"],
       "seed": [
         "0",
         "1",
@@ -61,7 +61,7 @@
         "0.1"
       ],
       "steps": [
-        "10000001"
+        "200000001"
       ],
       "l2_lambda": [
         "0"
@@ -76,7 +76,6 @@
         "0"
       ],
       "change_target_steps": [
-        "200000",
 				"1000000"
       ]
     }

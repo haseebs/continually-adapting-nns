@@ -539,6 +539,11 @@ void SingleLayerNetwork::replace_features_randomly(float perc_to_replace)
 	int max_replacements = int(prediction_weights.size() * perc_to_replace);
 	int replaced_counter = 0;
 
+  // NOTE: this is for random replacement comparison with decorrelator.
+  // the 0.1 is hardcoded hyperparameter here.
+  max_replacements = max(1, int(max_replacements * 0.1));
+	//int max_correlated_replacements = 2;
+
 	while (replaced_counter < max_replacements)
 	{
 		float least_useful_idx = min_idx(feature_utility_trace);
