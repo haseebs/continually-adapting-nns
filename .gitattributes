@@ -1,0 +1,15 @@
+# Ignore notebooks and data files in language stats
+*.ipynb linguist-documentation
+*.csv linguist-documentation
+*.json linguist-documentation
+*.txt linguist-documentation
+*.md linguist-documentation
+
+results/** linguist-documentation
+results/**/*.ipynb linguist-documentation
+
+# Explicitly mark C++ sources as code
+*.cpp linguist-language=C++
+*.hpp linguist-language=C++
+*.h   linguist-language=C++
+*.cc  linguist-language=C++
