@@ -1,7 +1,7 @@
 #ifndef INCLUDE_NN_SYNCED_SYNAPSE_H_
 #define INCLUDE_NN_SYNCED_SYNAPSE_H_
 
-
+#include <cstdint>
 #include <vector>
 #include <queue>
 #include <utility>
