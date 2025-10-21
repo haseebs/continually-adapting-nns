@@ -60,3 +60,24 @@ Evaluate the pruners on these pretrained models using:
 `./BinaryMNISTPruning --config cfg/<config_file> --run ::: {0..<num_runs>}`
 
 See `cfg/` for example of some config files.
+
+
+## References
+This repository contains the research conducted for the Master’s thesis:  
+
+> Haseeb S., *Greedy Pruning for Continually Adapting Networks*, M.Sc Thesis, University of Alberta.  
+
+You can access the full thesis here:  [University of Alberta — Thesis Repository](https://ualberta.scholaris.ca/items/ac6d560a-7a69-4ced-9fef-875688dacce1)
+
+If you use this code or its ideas in your research, you may use the following citation:  
+
+```bibtex
+@mastersthesis{shah2023greedy,
+  author       = {Shah, Haseeb},
+  title        = {Greedy Pruning for Continually Adapting Networks},
+  school       = {University of Alberta},
+  year         = {2023},
+  type         = {Master's Thesis},
+  url          = {https://ualberta.scholaris.ca/items/ac6d560a-7a69-4ced-9fef-875688dacce1}
+}
+```
